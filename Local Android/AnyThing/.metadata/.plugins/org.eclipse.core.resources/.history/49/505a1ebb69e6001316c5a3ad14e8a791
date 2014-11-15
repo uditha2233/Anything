@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AnyThing</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="signin">Sign in</string>
+    <string name="signup">Sign up</string>
+    <string name="logout">Log Out</string>
+    <string name="addnewad">Add New AD</string>
+    <string name="account">My Account</string>
+    <string name="title_activity_main_page">MainPageActivity</string>
+    <string name="title_section1">Home</string>
+    <string name="title_section2">Cell Phones &amp; Accessories</string>
+    <string name="title_section3">Computers &amp; Tablet PCs</string>
+    <string name="title_section4">Consumer Electronics</string>
+    <string name="title_section5">Vehicles &amp; Parts</string>
+    <string name="title_section6">Services</string>
+    <string name="title_section7">Other</string>
+    <string name="title_section8">Read</string>
+    <string name="title_section9">Unread</string>
+    <string name="title_section10">Sent</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+    <string name="title_activity_signup">SignupActivity</string>
+    <string name="txtUname">User Name</string>
+    <string name="txtEmail">E-Mail</string>
+    <string name="txtfullname">Full Name</string>
+    <string name="txtPhoneno">Phone No</string>
+    <string name="txtPassWord">Password</string>
+    <string name="txtrePassWord">Re-Password</string>
+    <string name="title_activity_item_view">ItemViewActivity</string>
+    <string name="title_activity_messages">Messages</string>
+    <string name="title_activity_message_view">MessageViewActivity</string>
+    <string name="title_activity_item_add">ItemAddActivity</string>
+    <string name="title_activity_adavanced_reg">AdavancedRegActivity</string>
+
+</resources>

@@ -1,0 +1,42 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.anything.MainPageActivity" >
+
+    <item
+        android:id="@+id/messages"
+        android:orderInCategory="1"
+        app:showAsAction="always"/>
+    
+    <item 
+        android:id="@+id/account"
+        android:orderInCategory="98"
+        android:title="@string/account"
+        app:showAsAction="never"/>
+    
+    <item 
+        android:id="@+id/addnewad"
+        android:orderInCategory="99"
+        android:title="@string/addnewad"
+        app:showAsAction="never"/>
+    
+    
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
+    
+    <item 
+        android:id="@+id/logout"
+        android:orderInCategory="101"
+        android:title="@string/logout"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_search"
+          android:title="Search"
+          android:icon="@android:drawable/ic_menu_search"
+          android:showAsAction="always"
+          android:actionViewClass="android.widget.SearchView" />
+    
+</menu>

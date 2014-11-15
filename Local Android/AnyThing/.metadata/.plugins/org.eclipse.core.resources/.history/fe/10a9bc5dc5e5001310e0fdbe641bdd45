@@ -1,0 +1,246 @@
+package com.example.anything;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+
+public class SignupActivity extends ActionBarActivity {
+
+	private EditText userName;
+	private EditText passWord;
+	private EditText rePasswrod;
+	private EditText fullName;
+	private EditText emailAddress;
+	private EditText phoneNumber;
+	private String uname, pass, repass, fname, email, phone;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_signup);
+
+		userName = (EditText) findViewById(R.id.reg_UserName);
+		passWord = (EditText) findViewById(R.id.reg_PassWord);
+		rePasswrod = (EditText) findViewById(R.id.reg_RePassWord);
+		fullName = (EditText) findViewById(R.id.reg_FullName);
+		emailAddress = (EditText) findViewById(R.id.reg_Email);
+		phoneNumber = (EditText) findViewById(R.id.reg_PhoneNo);
+
+		if (savedInstanceState == null) {
+			getSupportFragmentManager().beginTransaction()
+					.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.signup, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_signup,
+					container, false);
+			return rootView;
+		}
+	}
+
+	public void signup(View view) {
+
+		userName = (EditText) findViewById(R.id.reg_UserName);
+		passWord = (EditText) findViewById(R.id.reg_PassWord);
+		rePasswrod = (EditText) findViewById(R.id.reg_RePassWord);
+		fullName = (EditText) findViewById(R.id.reg_FullName);
+		emailAddress = (EditText) findViewById(R.id.reg_Email);
+		phoneNumber = (EditText) findViewById(R.id.reg_PhoneNo);
+		
+		uname = userName.getText().toString();
+		pass = passWord.getText().toString();
+		repass = rePasswrod.getText().toString();
+		fname = fullName.getText().toString();
+		email = emailAddress.getText().toString();
+		phone = phoneNumber.getText().toString();
+		
+		DataValidation validity = new DataValidation();
+
+		if (!(validity.usernameValidate(uname))) {
+			ErrorView("Username should contain atleast four characters");
+
+		} else if (!(validity.passwordValidate(pass))) {
+			ErrorView("Password should contain atleast four characters");
+
+		} else if (!(validity.passwordMissmatch(pass, repass))) {
+			ErrorView("Password doesn't match");
+			passWord.setText("");
+			rePasswrod.setText("");
+
+		} else if (!(validity.fullnameValidate(fname))) {
+			ErrorView("Full Name should contain atleast ten characters");
+
+		} else if (!(validity.phoneValidate(phone))) {
+			ErrorView("Please enter valid phone number");
+
+		} else if (!(validity.mailValidate(email))) {
+			ErrorView("Please enter valid email address");
+
+		} else {
+
+			Log.d("inside onPreExe", "on click");
+			Async(view);
+
+		}
+	}
+
+	private class ProcessReg extends AsyncTask<String, String, JSONObject> {
+
+		@Override
+		protected void onPreExecute() {
+
+			super.onPreExecute();
+
+			userName = (EditText) findViewById(R.id.reg_UserName);
+			passWord = (EditText) findViewById(R.id.reg_PassWord);
+			rePasswrod = (EditText) findViewById(R.id.reg_RePassWord);
+			fullName = (EditText) findViewById(R.id.reg_FullName);
+			emailAddress = (EditText) findViewById(R.id.reg_Email);
+			phoneNumber = (EditText) findViewById(R.id.reg_PhoneNo);
+			
+			uname = userName.getText().toString();
+			pass = passWord.getText().toString();
+			repass = rePasswrod.getText().toString();
+			fname = fullName.getText().toString();
+			email = emailAddress.getText().toString();
+			phone = phoneNumber.getText().toString();
+
+			Log.d("inside onPreExe", "inside onPreExe");
+
+		}
+
+		@Override
+		protected JSONObject doInBackground(String... arg0) {
+
+			Log.d("uname", uname);
+			Log.d("pass", pass);
+			Log.d("repass", repass);
+			Log.d("fname", fname);
+			Log.d("email", email);
+			Log.d("phone", phone);
+
+			RegData regData = new RegData();
+			JSONObject json = regData.regUser(uname, pass, fname, email, phone);
+			Log.d("inside", json.toString());
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject json) {
+
+			super.onPostExecute(json);
+			Log.d("inside onPreExe", "inside onPostExe");
+
+			try {
+				if (json.getString("success") != null) {
+
+					String resutlt = json.getString("success");
+					int resultLen = resutlt.length();
+
+					if (resultLen > 0) {
+
+						SuccessView("Registered Successfully!");
+
+						Intent myIntent = new Intent(SignupActivity.this,
+								MainPageActivity.class);
+						Bundle b = new Bundle();
+						b.putString("key", uname);
+						myIntent.putExtras(b);
+						myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(myIntent);
+						finish();
+
+					} else {
+						ErrorView("Username or Password Already Exits!");
+
+					}
+
+				} else {
+					ErrorView("Username or Password Already Exits!");
+
+				}
+			} catch (NumberFormatException e) {
+				ErrorView("Username or Password Already Exits!");
+				e.printStackTrace();
+			} catch (JSONException e) {
+				ErrorView("Username or Password Already Exits!");
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public void Async(View view) {
+		Log.d("inside onPreExe", "inside Async");
+		new ProcessReg().execute();
+	}
+
+	public void ErrorView(String error) {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+		alert.setMessage(error);
+		alert.setTitle("Attention");
+		alert.setPositiveButton("OK", null);
+		alert.setCancelable(false);
+		alert.create();
+		alert.show();
+
+	}
+
+	public void SuccessView(String success) {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+		alert.setMessage(success);
+		alert.setTitle("Successful");
+		alert.setPositiveButton("OK", null);
+		alert.setCancelable(false);
+		alert.create();
+		alert.show();
+
+	}
+
+}

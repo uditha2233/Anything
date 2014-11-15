@@ -1,0 +1,112 @@
+package com.example.anything;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+public class ItemViewActivity extends ActionBarActivity {
+
+	private String userId;
+	private String itemId;
+	private String noOfMsgs;
+	private int msgs;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_item_view);
+
+		Bundle b = getIntent().getExtras();
+		userId = b.getString("key");
+		itemId = b.getString("itemId");
+		noOfMsgs = b.getString("noOfMsgs");
+		
+		try {
+			msgs = Integer.parseInt(noOfMsgs);
+		} catch (NumberFormatException e) {
+			
+		}
+		
+		if (savedInstanceState == null) {
+			getSupportFragmentManager().beginTransaction()
+					.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+		
+		String url = "http://192.168.172.1:80/shop_webservice/Itemview.php?userlog=" + userId + "&&item=" + itemId;
+		Log.d("url", url);
+		WebView view = (WebView) this.findViewById(R.id.webView1);
+
+		view.getSettings().setJavaScriptEnabled(true);
+		view.loadUrl(url);
+		view.setWebViewClient(new HelloWebViewClient());
+		
+	}
+
+	public class HelloWebViewClient extends WebViewClient {
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView webView1, String url) {
+
+				webView1.loadUrl(url);
+				return true;
+			
+		}
+	}
+	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main_page, menu);
+		
+		if (msgs > 0) {
+			menu.findItem(R.id.messages)
+					.setIcon(R.drawable.ic_action_new_email);
+		} else {
+			menu.findItem(R.id.messages).setIcon(R.drawable.ic_action_email);
+		}
+		
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		else if (id == R.id.messages){
+			openMessages();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_item_view,
+					container, false);
+			return rootView;
+		}
+	}
+
+}

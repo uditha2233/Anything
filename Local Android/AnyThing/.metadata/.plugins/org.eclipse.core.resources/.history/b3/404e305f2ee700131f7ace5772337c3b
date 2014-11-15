@@ -1,0 +1,323 @@
+package com.example.anything;
+
+import java.util.Locale;
+
+import com.example.anything.MainPageActivity.PlaceholderFragment.HelloWebViewClient;
+
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.TextView;
+
+public class MessagesActivity extends ActionBarActivity implements
+		ActionBar.TabListener {
+
+	private static String userId;
+	private static String noOfMsgs;
+	private int msgs;
+
+	/**
+	 * The {@link android.support.v4.view.PagerAdapter} that will provide
+	 * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
+	 * derivative, which will keep every loaded fragment in memory. If this
+	 * becomes too memory intensive, it may be best to switch to a
+	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+	 */
+	SectionsPagerAdapter mSectionsPagerAdapter;
+
+	/**
+	 * The {@link ViewPager} that will host the section contents.
+	 */
+	ViewPager mViewPager;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_messages);
+
+		Bundle b = getIntent().getExtras();
+		userId = b.getString("key");
+		noOfMsgs = b.getString("noOfnewMsgs");
+
+		try {
+			msgs = Integer.parseInt(noOfMsgs);
+		} catch (NumberFormatException e) {
+
+		}
+
+		// Set up the action bar.
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+
+		
+		// Create the adapter that will return a fragment for each of the three
+		// primary sections of the activity.
+		mSectionsPagerAdapter = new SectionsPagerAdapter(
+				getSupportFragmentManager());
+
+		// Set up the ViewPager with the sections adapter.
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mSectionsPagerAdapter);
+
+		// When swiping between different sections, select the corresponding
+		// tab. We can also use ActionBar.Tab#select() to do this if we have
+		// a reference to the Tab.
+		mViewPager
+				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+					@Override
+					public void onPageSelected(int position) {
+						actionBar.setSelectedNavigationItem(position);
+					}
+				});
+
+		// For each of the sections in the app, add a tab to the action bar.
+		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+			// Create a tab with text corresponding to the page title defined by
+			// the adapter. Also specify this Activity object, which implements
+			// the TabListener interface, as the callback (listener) for when
+			// this tab is selected.
+			actionBar.addTab(actionBar.newTab()
+					.setText(mSectionsPagerAdapter.getPageTitle(i))
+					.setTabListener(this));
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main_page, menu);
+		
+		if (msgs > 0) {
+			menu.findItem(R.id.messages)
+					.setIcon(R.drawable.ic_action_new_email);
+		} else {
+			menu.findItem(R.id.messages).setIcon(R.drawable.ic_action_email);
+		}
+		
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		else if (id == R.id.messages){
+			openMessages();
+		}
+		else if (id == R.id.addnewad) {
+			addNewItem();
+		} 
+		else if (id == R.id.logout) {
+			logOut();
+		}
+		else if (id == android.R.id.home) {
+			goToMain();
+		}
+		else if (id == R.id.account) {
+			accountView();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	private void accountView() {
+		Intent myIntent = new Intent(MessagesActivity.this,
+				ProfileViewActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		b.putString("who", userId);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+	}
+	
+	private void addNewItem() {
+		Intent myIntent = new Intent(MessagesActivity.this,
+				ItemAddActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+	}
+	
+	private void goToMain() {
+		Intent myIntent = new Intent(MessagesActivity.this,
+				MainPageActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+
+	}
+	
+	private void logOut() {
+		Intent myIntent = new Intent(MessagesActivity.this, LoginActivity.class);
+		myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(myIntent);
+		finish();
+	}
+	
+	
+	private void openMessages() {
+		Intent myIntent = new Intent(MessagesActivity.this,
+				MessagesActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+
+	}
+
+	@Override
+	public void onTabSelected(ActionBar.Tab tab,
+			FragmentTransaction fragmentTransaction) {
+		// When the given tab is selected, switch to the corresponding page in
+		// the ViewPager.
+		mViewPager.setCurrentItem(tab.getPosition());
+	}
+
+	@Override
+	public void onTabUnselected(ActionBar.Tab tab,
+			FragmentTransaction fragmentTransaction) {
+	}
+
+	@Override
+	public void onTabReselected(ActionBar.Tab tab,
+			FragmentTransaction fragmentTransaction) {
+	}
+
+	/**
+	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+	 * one of the sections/tabs/pages.
+	 */
+	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+		public SectionsPagerAdapter(FragmentManager fm) {
+			super(fm);
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			// getItem is called to instantiate the fragment for the given page.
+			// Return a PlaceholderFragment (defined as a static inner class
+			// below).
+			return PlaceholderFragment.newInstance(position + 1);
+		}
+
+		@Override
+		public int getCount() {
+			// Show 3 total pages.
+			return 3;
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			Locale l = Locale.getDefault();
+			switch (position) {
+			case 0:
+				return getString(R.string.title_section9).toUpperCase(l);
+			case 1:
+				return getString(R.string.title_section8).toUpperCase(l);
+			case 2:
+				return getString(R.string.title_section10).toUpperCase(l);
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+		/**
+		 * The fragment argument representing the section number for this
+		 * fragment.
+		 */
+		private static final String ARG_SECTION_NUMBER = "section_number";
+
+		/**
+		 * Returns a new instance of this fragment for the given section number.
+		 */
+		public static PlaceholderFragment newInstance(int sectionNumber) {
+			PlaceholderFragment fragment = new PlaceholderFragment();
+			Bundle args = new Bundle();
+			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+			fragment.setArguments(args);
+			return fragment;
+		}
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_messages,
+					container, false);
+
+			WebView view = (WebView) rootView.findViewById(R.id.webView1);
+
+			
+			String cat = (Integer.toString(getArguments().getInt(
+					ARG_SECTION_NUMBER)));
+
+			String url = "http://www.ceylonwap.com/shop_webservice/Messages.php?userlog="
+					+ userId + "&&page=1&&cat=" + cat;
+
+			view.getSettings().setJavaScriptEnabled(true);
+			view.loadUrl(url);
+			view.setWebViewClient(new HelloWebViewClient());
+
+			return rootView;
+		}
+
+		public class HelloWebViewClient extends WebViewClient {
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView webView1, String url) {
+
+				if (url.contains("Messageview")) {
+					String itemId = url.substring(url.lastIndexOf("@") + 1);
+
+					Intent intent = new Intent(getActivity(),
+							MessageViewActivity.class);
+					Bundle b = new Bundle();
+					b.putString("key", userId);
+					b.putString("itemId", itemId);
+					intent.putExtras(b);
+					getActivity().startActivity(intent);
+					Log.d("item id", itemId);
+					return false;
+				} else {
+					webView1.loadUrl(url);
+					return true;
+				}
+			}
+		}
+
+	}
+
+}

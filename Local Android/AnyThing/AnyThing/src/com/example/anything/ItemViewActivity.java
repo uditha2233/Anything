@@ -1,0 +1,279 @@
+package com.example.anything;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.TextView;
+
+public class ItemViewActivity extends ActionBarActivity {
+
+	private String userId;
+	private String itemId;
+	private String noOfMsgs;
+	private int msgs;
+	private TextView view;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_item_view);
+
+		Bundle b = getIntent().getExtras();
+		userId = b.getString("key");
+		itemId = b.getString("itemId");
+		noOfMsgs = b.getString("msg");
+		
+		try {
+			msgs = Integer.parseInt(noOfMsgs);
+		} catch (NumberFormatException e) {
+
+		}
+		
+		this.data(view);
+
+		if (savedInstanceState == null) {
+			getSupportFragmentManager().beginTransaction()
+					.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+
+		String url = "http://192.168.172.1:80/shop_webservice/Itemview.php?userlog="
+				+ userId + "&&item=" + itemId;
+		Log.d("url", url);
+		WebView view = (WebView) this.findViewById(R.id.webView1);
+
+		view.getSettings().setJavaScriptEnabled(true);
+		view.loadUrl(url);
+		view.setWebViewClient(new HelloWebViewClient());
+
+	}
+
+	public class HelloWebViewClient extends WebViewClient {
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView webView1, String url) {
+
+			if (url.contains("backToTheItem")) {
+				Log.d("url", url);
+
+				Intent myIntent = new Intent(ItemViewActivity.this,
+						ItemViewActivity.class);
+				Bundle b = new Bundle();
+				b.putString("key", userId);
+				b.putString("itemId", itemId);
+				b.putString("msg", noOfMsgs);
+				myIntent.putExtras(b);
+				startActivity(myIntent);
+
+				return false;
+			} else if (url.contains("backToTheList")) {
+				Log.d("url", url);
+				Intent myIntent = new Intent(ItemViewActivity.this,
+						MainPageActivity.class);
+				Bundle b = new Bundle();
+				b.putString("key", userId);
+				b.putString("msg", noOfMsgs);
+				myIntent.putExtras(b);
+				startActivity(myIntent);
+
+				return false;
+			} else {
+				Log.d("url", url);
+				webView1.loadUrl(url);
+				return true;
+			}
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main_page, menu);
+
+		setTitle("");
+		
+		if (msgs > 0) {
+			menu.findItem(R.id.messages)
+					.setIcon(R.drawable.ic_action_new_email);
+		} else {
+			menu.findItem(R.id.messages).setIcon(R.drawable.ic_action_email);
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		} else if (id == R.id.messages) {
+			openMessages();
+		} else if (id == R.id.addnewad) {
+			addNewItem();
+		} else if (id == R.id.logout) {
+			logOut();
+		} else if (id == android.R.id.home) {
+			goToMain();
+		} else if (id == R.id.account) {
+			accountView();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void accountView() {
+		Intent myIntent = new Intent(ItemViewActivity.this,
+				ProfileViewActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		Log.d("msgs:", noOfMsgs);
+		b.putString("who", userId);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+	}
+
+	private void addNewItem() {
+		Intent myIntent = new Intent(ItemViewActivity.this,
+				ItemAddActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		Log.d("msgs:", noOfMsgs);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+	}
+
+	private void logOut() {
+		Intent myIntent = new Intent(ItemViewActivity.this, LoginActivity.class);
+		myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(myIntent);
+		finish();
+	}
+
+	private void openMessages() {
+		Intent myIntent = new Intent(ItemViewActivity.this,
+				MessagesActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		Log.d("msgs:", noOfMsgs);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+
+	}
+
+	private void goToMain() {
+		Intent myIntent = new Intent(ItemViewActivity.this,
+				MainPageActivity.class);
+		Bundle b = new Bundle();
+		b.putString("key", userId);
+		b.putString("msg", noOfMsgs);
+		Log.d("msgs:", noOfMsgs);
+		myIntent.putExtras(b);
+		startActivity(myIntent);
+
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_item_view,
+					container, false);
+			return rootView;
+		}
+	}
+	
+	
+	public void data(View view) {
+
+		Log.d("inside onPreExe", "on click");
+		Async(view);
+
+	}
+
+	private class ProcessMessages extends AsyncTask<String, String, JSONObject> {
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+
+			Log.d("userid", userId);
+
+			Log.d("inside onPreExe", "inside onPreExe");
+
+		}
+
+		@Override
+		protected JSONObject doInBackground(String... arg0) {
+			// TODO Auto-generated method stub
+			MessageData productdata = new MessageData();
+			JSONObject json = productdata.messageDetails(userId);
+			Log.d("inside", "doInBack");
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject json) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(json);
+
+			Log.d("inside onPreExe", "inside onPostExe");
+
+			try {
+
+				noOfMsgs = json.getString("newmsgs");
+				Log.d("msgs: ", noOfMsgs);
+				
+				try {
+					msgs = Integer.parseInt(noOfMsgs);
+				} catch (NumberFormatException e) {
+					
+				}
+
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public void Async(View view) {
+		Log.d("inside onPreExe", "inside Async");
+		new ProcessMessages().execute();
+	}
+
+}

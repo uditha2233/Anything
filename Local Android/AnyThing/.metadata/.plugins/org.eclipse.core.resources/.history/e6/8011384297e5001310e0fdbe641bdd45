@@ -1,0 +1,279 @@
+package com.example.anything;
+
+import com.example.anything.ItemViewActivity.HelloWebViewClient;
+
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
+import android.os.Build;
+
+public class ItemAddActivity extends ActionBarActivity {
+
+	
+	WebView web;
+	ProgressBar progressBar;
+
+	private ValueCallback<Uri> mUploadMessage;  
+	 private final static int FILECHOOSER_RESULTCODE=1;  
+
+	 @Override  
+	 protected void onActivityResult(int requestCode, int resultCode,  
+	                                    Intent intent) {  
+	  if(requestCode==FILECHOOSER_RESULTCODE)  
+	  {  
+	   if (null == mUploadMessage) return;  
+	            Uri result = intent == null || resultCode != RESULT_OK ? null  
+	                    : intent.getData();  
+	            mUploadMessage.onReceiveValue(result);  
+	            mUploadMessage = null;  
+	  }
+	  }  
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+	    super.onCreate(savedInstanceState);
+	    setContentView(R.layout.fragment_item_add);
+
+	    web = (WebView) findViewById(R.id.webView1);
+	   
+
+	    web = new WebView(this);  
+	    web.getSettings().setJavaScriptEnabled(true);
+	    web.loadUrl("http://www.script-tutorials.com/demos/199/index.html");
+	    web.setWebViewClient(new myWebClient());
+	    web.setWebChromeClient(new WebChromeClient()  
+	    {  
+	           //The undocumented magic method override  
+	           //Eclipse will swear at you if you try to put @Override here  
+	        // For Android 3.0+
+	        public void openFileChooser(ValueCallback<Uri> uploadMsg) {  
+
+	            mUploadMessage = uploadMsg;  
+	            Intent i = new Intent(Intent.ACTION_GET_CONTENT);  
+	            i.addCategory(Intent.CATEGORY_OPENABLE);  
+	            i.setType("image/*");  
+	            ItemAddActivity.this.startActivityForResult(Intent.createChooser(i,"File Chooser"), FILECHOOSER_RESULTCODE);  
+
+	           }
+
+	        // For Android 3.0+
+	           public void openFileChooser( ValueCallback uploadMsg, String acceptType ) {
+	           mUploadMessage = uploadMsg;
+	           Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+	           i.addCategory(Intent.CATEGORY_OPENABLE);
+	           i.setType("*/*");
+	           ItemAddActivity.this.startActivityForResult(
+	           Intent.createChooser(i, "File Browser"),
+	           FILECHOOSER_RESULTCODE);
+	           }
+
+	        //For Android 4.1
+	           public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture){
+	               mUploadMessage = uploadMsg;  
+	               Intent i = new Intent(Intent.ACTION_GET_CONTENT);  
+	               i.addCategory(Intent.CATEGORY_OPENABLE);  
+	               i.setType("image/*");  
+	               ItemAddActivity.this.startActivityForResult( Intent.createChooser( i, "File Chooser" ), ItemAddActivity.FILECHOOSER_RESULTCODE );
+
+	           }
+
+	    });  
+
+
+	    setContentView(web);  
+
+
+	}
+
+	public class myWebClient extends WebViewClient
+	{
+	    @Override
+	    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+	        // TODO Auto-generated method stub
+	        super.onPageStarted(view, url, favicon);
+	    }
+
+	    @Override
+	    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+	        // TODO Auto-generated method stub
+
+	        view.loadUrl(url);
+	        return true;
+
+	    }
+
+//	    @Override
+//	    public void onPageFinished(WebView view, String url) {
+//	        // TODO Auto-generated method stub
+//	        super.onPageFinished(view, url);
+//
+//	        progressBar.setVisibility(View.GONE);
+//	    }
+	}
+
+	//flipscreen not loading again
+	@Override
+	public void onConfigurationChanged(Configuration newConfig){        
+	    super.onConfigurationChanged(newConfig);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+//	private String userId;
+//	private String itemId;
+//	private String noOfMsgs;
+//	private int msgs;
+//	
+//	@Override
+//	protected void onCreate(Bundle savedInstanceState) {
+//		super.onCreate(savedInstanceState);
+//		setContentView(R.layout.activity_item_add);
+//
+//		Bundle b = getIntent().getExtras();
+//		userId = b.getString("key");
+//		itemId = b.getString("itemId");
+//		noOfMsgs = b.getString("noOfMsgs");
+//
+//		try {
+//			msgs = Integer.parseInt(noOfMsgs);
+//		} catch (NumberFormatException e) {
+//
+//		}
+//		
+//		if (savedInstanceState == null) {
+//			getSupportFragmentManager().beginTransaction()
+//					.add(R.id.container, new PlaceholderFragment()).commit();
+//		}
+//		
+//		ActionBar actionBar = getSupportActionBar();
+//		actionBar.setDisplayHomeAsUpEnabled(true);
+//
+//		String url = "http://192.168.172.1:80/shop_webservice/ItemAdd.php?userlog="
+//				+ userId;
+//		Log.d("url", url);
+//		WebView view = (WebView) this.findViewById(R.id.webView1);
+//
+//		view.getSettings().setJavaScriptEnabled(true);
+//		view.loadUrl(url);
+//		view.setWebViewClient(new HelloWebViewClient());
+//	}
+//
+//	public class HelloWebViewClient extends WebViewClient {
+//		@Override
+//		public boolean shouldOverrideUrlLoading(WebView webView1, String url) {
+//
+//				webView1.loadUrl(url);
+//				return true;
+//			
+//		}
+//	}
+	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main_page, menu);
+		
+//		if (msgs > 0) {
+//			menu.findItem(R.id.messages)
+//					.setIcon(R.drawable.ic_action_new_email);
+//		} else {
+//			menu.findItem(R.id.messages).setIcon(R.drawable.ic_action_email);
+//		}
+		
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+//		if (id == R.id.action_settings) {
+//			return true;
+//		}else if (id == R.id.messages) {
+//			openMessages();
+//		} else if (id == R.id.logout) {
+//			logOut();
+//		} else if (id == android.R.id.home) {
+//			goToMain();
+//		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	
+//	private void logOut() {
+//		Intent myIntent = new Intent(ItemAddActivity.this, LoginActivity.class);
+//		myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//		startActivity(myIntent);
+//		finish();
+//	}
+//
+//	private void openMessages() {
+//		Intent myIntent = new Intent(ItemAddActivity.this,
+//				MessagesActivity.class);
+//		Bundle b = new Bundle();
+//		b.putString("key", userId);
+//		b.putString("msg", noOfMsgs);
+//		myIntent.putExtras(b);
+//		startActivity(myIntent);
+//
+//	}
+//
+//	private void goToMain() {
+//		Intent myIntent = new Intent(ItemAddActivity.this,
+//				MainPageActivity.class);
+//		Bundle b = new Bundle();
+//		b.putString("key", userId);
+//		b.putString("msg", noOfMsgs);
+//		myIntent.putExtras(b);
+//		startActivity(myIntent);
+//
+//	}
+//	
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_item_add,
+					container, false);
+			return rootView;
+		}
+	}
+
+}
